@@ -19,7 +19,6 @@ jobs:
         run: |
           echo "Executando testes..."
           # Exemplo: go test ./... -v
-
   build:
     name: Build and Deploy
     runs-on: ubuntu-latest
@@ -48,7 +47,6 @@ jobs:
           type=sha,format=long
           type=raw,value=latest
           type=semver,pattern={{version}}
-
     - name: Build and push image to Dockerhub
       uses: docker/build-push-action@v5
       with:
