@@ -1,4 +1,4 @@
-name: CDGitops
+name: CDGitops with GitHub App
 
 on: 
   push:
@@ -64,11 +64,20 @@ jobs:
       with: 
         kustomize-version: "5.1.1"
 
+    # Utilizando um GitHub App para permissões entre repositórios
+    - name: Generate token
+      id: generate_token
+      uses: tibdex/github-app-token@v2
+      with:
+        app_id: ${{ secrets.APP_ID }}
+        private_key: ${{ secrets.APP_PRIVATE_KEY }}
+        repository: gutherry/gitops
+
     - name: Checkout GitOps repository
       uses: actions/checkout@v4
       with:
         repository: gutherry/gitops
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ steps.generate_token.outputs.token }}
         path: gitops
 
     - name: Update Kubernetes resources
@@ -82,7 +91,7 @@ jobs:
       run: |
         cd gitops
         git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --local user.name "GitHub App"
         git add .
-        git commit -m "Update application to $GITHUB_SHA"
-        git push https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/gutherry/gitops.git HEAD:main
+        git commit -m "Update application to $GITHUB_SHA" || echo "No changes to commit"
+        git push origin main
