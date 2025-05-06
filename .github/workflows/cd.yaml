@@ -19,6 +19,7 @@ jobs:
         run: |
           echo "Executando testes..."
           # Exemplo: go test ./... -v
+
   build:
     name: Build and Deploy
     runs-on: ubuntu-latest
@@ -47,6 +48,7 @@ jobs:
           type=sha,format=long
           type=raw,value=latest
           type=semver,pattern={{version}}
+
     - name: Build and push image to Dockerhub
       uses: docker/build-push-action@v5
       with:
@@ -66,7 +68,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: gutherry/gitops
-        token: ${{ secrets.GITOPS_PAT }}
+        tooken: ${{ secrets.GITHUB_TOKEN }}
         path: gitops
 
     - name: Update Kubernetes resources
@@ -77,12 +79,10 @@ jobs:
         kustomize edit set image goserver=$DOCKER_USERNAME/projeto:$GITHUB_SHA
         
     - name: Commit and push changes
-      env:
-        GITOPS_PAT: ${{ secrets.GITOPS_PAT }}
       run: |
         cd gitops
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .
         git commit -m "Update application to $GITHUB_SHA"
-        git push https://x-access-token:${GITOPS_PAT}@github.com/gutherry/gitops.git HEAD:main
+        git push https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/gutherry/gitops.git HEAD:main
