@@ -1,6 +1,6 @@
 name: CDGitops
 
-# Adicione esta seção
+
 permissions:
   contents: write
 
@@ -69,5 +69,4 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        # Linha problemática removida
-        # repository: devfullcycle/projeto
+        
