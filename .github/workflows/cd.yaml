@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Busca todo o histórico para operações Git adequadas
+        fetch-depth: 0
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -65,5 +65,5 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        # Certifique-se de que este é o repositório para o qual você deseja fazer push
-        repository: gutherry/projeto
+        # Linha problemática removida
+        # repository: devfullcycle/projeto
