@@ -8,4 +8,4 @@ resources:
 images:
 - name: goserver
   newName: gutherry/projeto
-  newTag: 4ed48e10859b6366700bdefeddb4d77c6e513af6
+  newTag: c56968f23bbb74915370ee0018f9ecf04fa541c8
