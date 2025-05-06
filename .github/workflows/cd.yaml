@@ -11,15 +11,26 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Busca todo o histórico para operações Git adequadas
 
-    - name: Build and push image to Dockerhub
-      uses: docker/build-push-action@v1.1.0
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        repository: ${{ secrets.DOCKER_USERNAME }}/projeto
-        tags: ${{ github.sha }}, latest
+
+    - name: Build and push image to Dockerhub
+      uses: docker/build-push-action@v5
+      with:
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/projeto:${{ github.sha }}
+          ${{ secrets.DOCKER_USERNAME }}/projeto:latest
 
     - name: Setup Kustomize
       uses: imranismail/setup-kustomize@v1
@@ -33,14 +44,26 @@ jobs:
         cd k8s
         kustomize edit set image goserver=$DOCKER_USERNAME/projeto:$GITHUB_SHA
 
+    - name: Check for changes
+      id: git-check
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Commit
+      if: steps.git-check.outputs.changes == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -am "Bump docker version"
 
     - name: Push
+      if: steps.git-check.outputs.changes == 'true'
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        repository: devfullcycle/projeto
+        # Certifique-se de que este é o repositório para o qual você deseja fazer push
+        repository: gutherry/projeto
